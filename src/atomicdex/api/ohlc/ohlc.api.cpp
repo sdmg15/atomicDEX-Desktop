@@ -14,13 +14,13 @@
  *                                                                            *
  ******************************************************************************/
 
-#include "src/atomicdex/pch.hpp"
+#include "atomicdex/pch.hpp"
 
 //! Deps
 #include <nlohmann/json.hpp>
 
 //! Project Headers
-#include "ohlc.api.hpp"
+#include "atomicdex/api/ohlc/ohlc.api.hpp"
 
 namespace atomic_dex
 {
@@ -67,6 +67,11 @@ namespace atomic_dex
 
         if (j.contains("60"))
         {
+            if (j.at("60").is_null())
+            {
+                answer.is_data_corrupted = true;
+                return;
+            }
             answer.result = ohlc_answer_success{};
             from_json(j, answer.result.value());
         }
@@ -84,9 +89,11 @@ namespace atomic_dex
         }
         else
         {
+            std::string body = TO_STD_STR(resp.extract_string(true).get());
+            answer.error     = body;
             try
             {
-                const auto json_answer = nlohmann::json::parse(TO_STD_STR(resp.extract_string(true).get()));
+                const auto json_answer = nlohmann::json::parse(body);
                 from_json(json_answer, answer);
             }
             catch (const std::exception& error)

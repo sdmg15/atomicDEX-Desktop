@@ -14,16 +14,17 @@
  *                                                                            *
  ******************************************************************************/
 
+//! PCH
+#include "atomicdex/pch.hpp"
+
 //! QT
 #include <QJsonDocument>
 #include <QJsonObject>
 
-//! PCH
-#include "src/atomicdex/pch.hpp"
 
 //! Project Headers
-#include "qt.candlestick.charts.model.hpp"
-#include "src/atomicdex/services/ohlc/ohlc.provider.hpp"
+#include "atomicdex/models/qt.candlestick.charts.model.hpp"
+#include "atomicdex/services/ohlc/ohlc.provider.hpp"
 
 namespace atomic_dex
 {
@@ -119,7 +120,14 @@ namespace atomic_dex
         auto& provider = this->m_system_manager.get_system<ohlc_provider>();
         if (not provider.is_ohlc_data_available())
         {
+            spdlog::trace("OHLC data not available, stop fetching");
             this->clear_data();
+            this->set_is_currently_fetching(false);
+            if (provider.is_ohlc_data_corrupted())
+            {
+                spdlog::warn("OHLC data corrupted, set pair supported to false");
+                this->set_is_pair_supported(false);
+            }
             return false;
         }
 
@@ -140,8 +148,8 @@ namespace atomic_dex
         }
         emit chartFullyModelReset();
 
-        if (m_model_data.empty()) {
-            //this->set_is_currently_fetching(false);
+        if (m_model_data.empty())
+        {
             return;
         }
         double max_value = std::numeric_limits<double>::min();
@@ -486,8 +494,8 @@ namespace atomic_dex
         QVariantMap out;
 
         auto it = std::lower_bound(rbegin(m_model_data), rend(m_model_data), timestamp, [](const nlohmann::json& current_json, int timestamp) {
-          int res = current_json.at("timestamp").get<int>();
-          return timestamp < res;
+            int res = current_json.at("timestamp").get<int>();
+            return timestamp < res;
         });
 
         if (it != m_model_data.rend())

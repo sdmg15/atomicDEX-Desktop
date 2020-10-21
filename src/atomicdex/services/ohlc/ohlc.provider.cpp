@@ -15,15 +15,15 @@
  ******************************************************************************/
 
 //! PCH
-#include "src/atomicdex/pch.hpp"
+#include "atomicdex/pch.hpp"
 
 //! Deps
-#include <nlohmann/json.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
+#include <nlohmann/json.hpp>
 
 //! Project headers
-#include "ohlc.provider.hpp"
-#include "src/atomicdex/api/ohlc/ohlc.api.hpp"
+#include "atomicdex/api/ohlc/ohlc.api.hpp"
+#include "atomicdex/services/ohlc/ohlc.provider.hpp"
 
 namespace atomic_dex
 {
@@ -65,6 +65,7 @@ namespace atomic_dex
 
         if (auto [normal, quoted] = is_pair_supported(evt.base, evt.rel); !normal && !quoted)
         {
+            spdlog::debug("[{} / {}] is not supported clearing OHLC data", evt.base, evt.rel);
             m_current_ohlc_data->clear();
             m_current_orderbook_ticker_pair.first  = "";
             m_current_orderbook_ticker_pair.second = "";
@@ -72,6 +73,7 @@ namespace atomic_dex
             return;
         }
 
+        spdlog::debug("[{} / {}] is supported processing OHLC data", evt.base, evt.rel);
         m_current_ohlc_data             = nlohmann::json::array();
         m_current_orderbook_ticker_pair = {boost::algorithm::to_lower_copy(evt.base), boost::algorithm::to_lower_copy(evt.rel)};
         auto [base, rel]                = m_current_orderbook_ticker_pair;
@@ -109,14 +111,23 @@ namespace atomic_dex
                     auto answer = atomic_dex::ohlc_answer_from_async_resp(resp);
                     if (answer.result.has_value())
                     {
-                        m_current_ohlc_data = answer.result.value().raw_result;
+                        spdlog::info("Successfully fetched ohlc rpc data");
+                        this->m_data_corrupted = false;
+                        m_current_ohlc_data    = answer.result.value().raw_result;
                         this->updating_quote_and_average(quoted);
                         this->dispatcher_.trigger<refresh_ohlc_needed>(is_a_reset);
                     }
-                    spdlog::error("http error: {}", answer.error.value_or("dummy"));
+                    else
+                    {
+                        spdlog::error("http error: {}", answer.error.value_or("dummy"));
+                        if (answer.is_data_corrupted)
+                        {
+                            this->m_data_corrupted = true;
+                        }
+                        this->dispatcher_.trigger<refresh_ohlc_needed>(is_a_reset);
+                    }
                 })
                 .then(&handle_exception_pplx_task);
-            ;
 
             return false;
         }
@@ -128,11 +139,14 @@ namespace atomic_dex
     std::pair<bool, bool>
     ohlc_provider::is_pair_supported(const std::string& base, const std::string& rel) const noexcept
     {
-        std::pair<bool, bool> result;
+        std::pair<bool, bool> result{false, false};
         const std::string     tickers = boost::algorithm::to_lower_copy(base) + "-" + boost::algorithm::to_lower_copy(rel);
-        result.first                  = std::any_of(begin(m_supported_pair), end(m_supported_pair), [tickers](auto&& cur_str) { return cur_str == tickers; });
+        spdlog::debug("tickers -> {}", tickers);
+        result.first = std::any_of(begin(m_supported_pair), end(m_supported_pair), [tickers](auto&& cur_str) { return cur_str == tickers; });
         const std::string quoted_tickers = boost::algorithm::to_lower_copy(rel) + "-" + boost::algorithm::to_lower_copy(base);
+        spdlog::debug("quoted_tickers -> {}", quoted_tickers);
         result.second = std::any_of(begin(m_supported_pair), end(m_supported_pair), [quoted_tickers](auto&& cur_str) { return cur_str == quoted_tickers; });
+        spdlog::debug("ticker supported: {}, reverted: {}", result.first, result.second);
         return result;
     }
 
@@ -143,6 +157,12 @@ namespace atomic_dex
         bool res = false;
         res      = !m_current_ohlc_data->empty();
         return res;
+    }
+
+    bool
+    ohlc_provider::is_ohlc_data_corrupted() const noexcept
+    {
+        return m_data_corrupted.load();
     }
 
     nlohmann::json

@@ -57,6 +57,7 @@ namespace atomic_dex
     {
         std::optional<ohlc_answer_success> result;
         std::optional<std::string>         error;
+        bool                               is_data_corrupted{false};
     };
 
     void from_json(const nlohmann::json& j, ohlc_answer_success& answer);
