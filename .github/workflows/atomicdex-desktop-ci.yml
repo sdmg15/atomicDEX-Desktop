@@ -113,7 +113,7 @@ jobs:
           CC: clang-10
         uses: KomodoPlatform/run-vcpkg@v3
         with:
-          vcpkgArguments: '@${{ github.workspace }}/.github/workflows/linux_response_file.txt'
+          vcpkgArguments: '@${{ github.workspace }}/.github/workflows/linux_response_file.txt --overlay-ports=$HOME/vcpkg-custom-ports'
           vcpkgDirectory: '${{ github.workspace }}/ci_tools_atomic_dex/vcpkg-repo'
           appendedCacheKey: ${{ hashFiles('.github/workflows/linux_response_file.txt') }}
 
@@ -129,15 +129,22 @@ jobs:
           CC: /usr/local/opt/llvm@9/bin/clang
         uses: KomodoPlatform/run-vcpkg@v3
         with:
-          vcpkgArguments: '@${{ github.workspace }}/.github/workflows/osx_response_file.txt'
+          vcpkgArguments: '@${{ github.workspace }}/.github/workflows/osx_response_file.txt --overlay-ports=$HOME/vcpkg-custom-ports'
           vcpkgDirectory: '${{ github.workspace }}/ci_tools_atomic_dex/vcpkg-repo'
           appendedCacheKey: ${{ hashFiles('.github/workflows/osx_response_file.txt') }}
+
+
+      - name: Install deps (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          git clone https://github.com/KomodoPlatform/vcpkg-custom-ports.git vcpkg-custom-ports
 
       - name: vcpkg deps (Windows)
         if: runner.os == 'Windows'
         uses: KomodoPlatform/run-vcpkg@v3
         with:
-          vcpkgArguments: '@${{ github.workspace }}/.github/workflows/windows_response_file.txt'
+          vcpkgArguments: '@${{ github.workspace }}/.github/workflows/windows_response_file.txt --overlay-ports=vcpkg-custom-ports'
           vcpkgDirectory: '${{ github.workspace }}/ci_tools_atomic_dex/vcpkg-repo'
           appendedCacheKey: ${{ hashFiles('.github/workflows/windows_response_file.txt') }}
 

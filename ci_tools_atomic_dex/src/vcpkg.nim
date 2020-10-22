@@ -3,9 +3,13 @@ import osproc
 
 var g_vcpkg_local_path* = ""
 var g_vcpkg_cmake_script_path* = ""
+var g_vcpkg_custom_ports_path* = ""
 
 proc check_if_vcpkg_exists*(): bool =
     result = os.existsDir("vcpkg-repo")
+
+proc check_if_custom_ports_exists*(): bool =
+    result = os.existsDir("vcpkg-custom-ports")
 
 proc build_vcpkg() =
     if not os.existsFile(g_vcpkg_local_path):
@@ -35,6 +39,9 @@ proc integrate_vcpkg() =
 
 proc install_vcpkg*() =
     set_vcpkg_path()
+    if not check_if_custom_ports_exists():
+        echo "Installing custom ports"
+        discard execCmd("git clone https://github.com/KomodoPlatform/vcpkg-custom-ports vcpkg-custom-ports")
     if not check_if_vcpkg_exists():
         echo "Installing vcpkg"
         discard execCmd("git clone https://github.com/KomodoPlatform/vcpkg vcpkg-repo")

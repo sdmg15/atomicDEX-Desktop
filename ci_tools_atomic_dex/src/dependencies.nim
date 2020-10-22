@@ -1,4 +1,5 @@
 import osproc
+import os
 import vcpkg
 
 var g_date = "date"
@@ -25,15 +26,19 @@ let g_packages = [
 
 proc download_packages*() =
     echo "Downloading packages ... please wait"
+    var vcpkg_custom_ports_path = os.getCurrentDir().joinPath("vcpkg-custom-ports")
+    if not os.existsDir(vcpkg_custom_ports_path):
+        echo "Installing custom ports"
+        discard execCmd("git clone https://github.com/KomodoPlatform/vcpkg-custom-ports vcpkg-custom-ports")
     for idx, package in g_packages:
         if package.head:
             when defined(windows):
-                discard execCmd(g_vcpkg_local_path & " install " & package.name & ":x64-windows --head")
+                discard execCmd(g_vcpkg_local_path & " install " & package.name & ":x64-windows --head --overlay-ports=" & vcpkg_custom_ports_path)
             when defined(linux) or defined(osx):
-                discard execCmd(g_vcpkg_local_path & " install " & package.name & " --head")
+                discard execCmd(g_vcpkg_local_path & " install " & package.name & " --head --overlay-ports=" & vcpkg_custom_ports_path)
         else:
             when defined(windows):
-                discard execCmd(g_vcpkg_local_path & " install " & package.name & ":x64-windows")
+                discard execCmd(g_vcpkg_local_path & " install " & package.name & ":x64-windows --overlay-ports=" & vcpkg_custom_ports_path)
             when defined(linux) or defined(osx):
-                discard execCmd(g_vcpkg_local_path & " install " & package.name)
+                discard execCmd(g_vcpkg_local_path & " install " & package.name & " --overlay-ports=" & vcpkg_custom_ports_path)
     echo "Downloading packages finished"

@@ -57,3 +57,4 @@ cd libwally-core
 ./configure --disable-shared
 sudo make -j3 install
 cd ..
+git clone https://github.com/KomodoPlatform/vcpkg-custom-ports.git $HOME/vcpkg-custom-ports
