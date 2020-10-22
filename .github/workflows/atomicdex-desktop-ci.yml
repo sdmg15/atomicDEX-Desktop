@@ -138,7 +138,7 @@ jobs:
         if: runner.os == 'Windows'
         shell: powershell
         run: |
-          git clone https://github.com/KomodoPlatform/vcpkg-custom-ports.git vcpkg-custom-ports
+          git clone https://github.com/KomodoPlatform/vcpkg-custom-ports.git ${{ github.workspace }}/ci_tools_atomic_dex/vcpkg-custom-ports
 
       - name: vcpkg deps (Windows)
         if: runner.os == 'Windows'
