@@ -30,6 +30,10 @@ proc download_packages*() =
     if not os.existsDir(vcpkg_custom_ports_path):
         echo "Installing custom ports"
         discard execCmd("git clone https://github.com/KomodoPlatform/vcpkg-custom-ports vcpkg-custom-ports")
+    #vcpkg update --overlay-ports=./vcpkg-custom-ports
+    #vcpkg upgrade --no-dry-run --overlay-ports=./vcpkg-custom-ports
+    discard execCmd(g_vcpkg_local_path & " update --overlay-ports=" & vcpkg_custom_ports_path)
+    discard execCmd(g_vcpkg_local_path & " upgrade --no-dry-run --overlay-ports=" & vcpkg_custom_ports_path)
     for idx, package in g_packages:
         if package.head:
             when defined(windows):
