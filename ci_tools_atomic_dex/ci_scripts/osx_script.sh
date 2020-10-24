@@ -16,6 +16,10 @@ brew install autoconf \
 export CC=/usr/local/opt/llvm/bin/clang
 export CXX=/usr/local/opt/llvm/bin/clang++
 export MACOSX_DEPLOYMENT_TARGET=10.13
+
+# get SDKs 
+git clone https://github.com/phracker/MacOSX-SDKs $HOME/sdk
+
 # get curl
 git clone https://github.com/curl/curl.git
 cd curl
@@ -24,11 +28,11 @@ git checkout curl-7_70_0
 ./configure --disable-shared --enable-static --without-libidn2 --without-ssl --without-nghttp2 --disable-ldap --with-darwinssl
 make -j3 install
 cd ../
+
+# get wally
 git clone https://github.com/KomodoPlatform/libwally-core.git
 cd libwally-core
 ./tools/autogen.sh
 ./configure --disable-shared
 sudo make -j3 install
 cd ..
-# get SDKs 
-git clone https://github.com/phracker/MacOSX-SDKs $HOME/sdk
