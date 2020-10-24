@@ -30,9 +30,16 @@ make -j3 install
 cd ../
 
 # get wally
+export OSX_SDK=$HOME/sdk/MacOSX10.13.sdk
+export CFLAGS="$CFLAGS -isysroot $OSX_SDK -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
+export CXXFLAGS="$CXXFLAGS -isysroot $OSX_SDK -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
+export LDFLAGS="$LDFLAGS -isysroot $OSX_SDK -mmacosx-version-min=$MACOSX_DEPLOYMENT_TARGET"
 git clone https://github.com/KomodoPlatform/libwally-core.git
 cd libwally-core
 ./tools/autogen.sh
 ./configure --disable-shared
 sudo make -j3 install
 cd ..
+unset CFLAGS
+unset CXXFLAGS
+unset LDFLAGS
