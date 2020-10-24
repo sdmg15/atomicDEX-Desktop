@@ -163,9 +163,12 @@ jobs:
         run: |
           export QT_INSTALL_CMAKE_PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/clang_64/lib/cmake
           export QT_ROOT=${{ github.workspace }}/Qt/${{ matrix.qt }}
+          export CC=/usr/local/opt/llvm/bin/clang
+          export CXX=/usr/local/opt/llvm/bin/clang++
+          export MACOSX_DEPLOYMENT_TARGET=10.13
           cd ci_tools_atomic_dex
           nimble build -y
-          ./ci_tools_atomic_dex bundle release --osx_sdk=$HOME/sdk/MacOSX10.13.sdk --compiler=/usr/local/opt/llvm@9/bin/clang++
+          ./ci_tools_atomic_dex bundle release --osx_sdk=$HOME/sdk/MacOSX10.13.sdk --compiler=/usr/local/opt/llvm/bin/clang++
           ls bundle-Release/atomicdex-desktop.dmg
 
       - name: Build AtomicDEX (Windows)
@@ -207,8 +210,11 @@ jobs:
         run: |
           export QT_INSTALL_CMAKE_PATH=${{ github.workspace }}/Qt/${{ matrix.qt }}/clang_64/lib/cmake
           export QT_ROOT=${{ github.workspace }}/Qt/${{ matrix.qt }}
+          export CC=/usr/local/opt/llvm/bin/clang
+          export CXX=/usr/local/opt/llvm/bin/clang++
+          export MACOSX_DEPLOYMENT_TARGET=10.13
           echo "Running tests"
-          ./ci_tools_atomic_dex tests release --osx_sdk=$HOME/sdk/MacOSX10.13.sdk --compiler=/usr/local/opt/llvm@9/bin/clang++
+          ./ci_tools_atomic_dex tests release --osx_sdk=$HOME/sdk/MacOSX10.13.sdk --compiler=/usr/local/opt/llvm/bin/clang++
           cd build-Release/bin/atomicdex-desktop_tests.app/Contents/MacOS
           cat atomic-dex-tests-result.xml
           curl https://report.ci/upload.py --output upload.py

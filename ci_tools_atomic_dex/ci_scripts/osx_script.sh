@@ -12,8 +12,10 @@ brew install autoconf \
             boost \
             gcc \
             gnu-sed \
-            llvm@9
-export CC=/usr/local/opt/llvm@9/bin/clang
+            llvm
+export CC=/usr/local/opt/llvm/bin/clang
+export CXX=/usr/local/opt/llvm/bin/clang++
+export MACOSX_DEPLOYMENT_TARGET=10.13
 # get curl
 git clone https://github.com/curl/curl.git
 cd curl
