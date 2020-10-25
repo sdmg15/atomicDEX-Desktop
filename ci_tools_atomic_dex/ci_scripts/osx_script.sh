@@ -14,6 +14,8 @@ brew install autoconf \
             gcc \
             gnu-sed \
             llvm
+
+brew upgrade llvm
 export CC=/usr/local/opt/llvm/bin/clang
 export CXX=/usr/local/opt/llvm/bin/clang++
 export MACOSX_DEPLOYMENT_TARGET=10.13
