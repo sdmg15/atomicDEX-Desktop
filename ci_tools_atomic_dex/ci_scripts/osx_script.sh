@@ -13,11 +13,12 @@ brew install autoconf \
             boost \
             gcc \
             gnu-sed \
-            llvm
+            llvm \
+            llvm@9
 
 brew upgrade llvm
-export CC=/usr/local/opt/llvm/bin/clang
-export CXX=/usr/local/opt/llvm/bin/clang++
+export CC=/usr/local/opt/llvm@9/bin/clang
+export CXX=/usr/local/opt/llvm@9/bin/clang++
 export MACOSX_DEPLOYMENT_TARGET=10.13
 
 # get SDKs 

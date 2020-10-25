@@ -125,8 +125,8 @@ jobs:
       - name: vcpkg deps (MacOS)
         if: runner.os == 'macOS'
         env: # Or as an environment variable
-          CXX: /usr/local/opt/llvm/bin/clang++
-          CC: /usr/local/opt/llvm/bin/clang
+          CXX: /usr/local/opt/llvm@9/bin/clang++
+          CC: /usr/local/opt/llvm@9/bin/clang
           #MACOSX_DEPLOYMENT_TARGET: 10.13
         uses: KomodoPlatform/run-vcpkg@v3
         with:
