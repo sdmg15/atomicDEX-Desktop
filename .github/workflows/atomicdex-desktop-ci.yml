@@ -127,7 +127,7 @@ jobs:
         env: # Or as an environment variable
           CXX: /usr/local/opt/llvm/bin/clang++
           CC: /usr/local/opt/llvm/bin/clang
-          MACOSX_DEPLOYMENT_TARGET: 10.13
+          #MACOSX_DEPLOYMENT_TARGET: 10.13
         uses: KomodoPlatform/run-vcpkg@v3
         with:
           vcpkgArguments: '@${{ github.workspace }}/.github/workflows/osx_response_file.txt'
