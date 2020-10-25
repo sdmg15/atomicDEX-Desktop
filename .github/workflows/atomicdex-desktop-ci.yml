@@ -2,7 +2,7 @@ name: AtomicDex-Desktop CI
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
   push:
     branches:
       - master
@@ -10,7 +10,7 @@ on:
     - cron: '0 0 * * 1'
 
 jobs:
-  
+
   ci-flow:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
@@ -18,14 +18,14 @@ jobs:
     strategy:
       matrix:
         name: [
-          ubuntu-qt-5-15-0,
-          ubuntu-qt-5-15-1,
-          osx-qt-5-15-0,
-          osx-qt-5-15-1,
-          windows-10-qt-5-15-0,
-          windows-10-qt-5-15-1
+            ubuntu-qt-5-15-0,
+            ubuntu-qt-5-15-1,
+            osx-qt-5-15-0,
+            osx-qt-5-15-1,
+            windows-10-qt-5-15-0,
+            windows-10-qt-5-15-1
         ]
-    
+
         include:
           - name: ubuntu-qt-5-15-0
             os: ubuntu-16.04
@@ -50,13 +50,13 @@ jobs:
           - name: windows-10-qt-5-15-1
             os: windows-latest
             qt: '5.15.1'
-    
+
     steps:
       - uses: actions/checkout@v2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           submodules: 'true'
-      
+
       - name: Install QT (Linux)
         if: runner.os == 'Linux'
         uses: KomodoPlatform/install-qt-action@v2
@@ -127,6 +127,7 @@ jobs:
         env: # Or as an environment variable
           CXX: /usr/local/opt/llvm/bin/clang++
           CC: /usr/local/opt/llvm/bin/clang
+          MACOSX_DEPLOYMENT_TARGET: 10.13
         uses: KomodoPlatform/run-vcpkg@v3
         with:
           vcpkgArguments: '@${{ github.workspace }}/.github/workflows/osx_response_file.txt'
