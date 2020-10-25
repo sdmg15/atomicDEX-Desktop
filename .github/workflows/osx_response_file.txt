@@ -3,6 +3,7 @@ folly
 boost-multiprecision
 boost-random
 boost-lockfree
+boost-filesystem
 doctest
 fmt
 curl
