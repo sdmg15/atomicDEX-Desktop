@@ -7,6 +7,7 @@ option(DISABLE_GEOBLOCKING "Enable to disable geoblocking (for dev purpose)" OFF
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_POLICY_WARNING_CMP0100 OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -198,6 +199,9 @@ target_link_libraries(atomicdex-desktop_shared_deps
         Qt5::Quick
         Qt5::Svg
         Qt5::Charts
+        Qt5::WebEngine
+        Qt5::WebEngineCore
+        Qt5::WebEngineWidgets
         Qt5::Widgets
         qzxing
         antara::world

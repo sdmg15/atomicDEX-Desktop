@@ -30,7 +30,9 @@
 #include <QTimer>
 
 #if defined(_WIN32) || defined(WIN32)
-#    define WIN32_LEAN_AND_MEAN
+#    ifndef WIN32_LEAN_AND_MEAN
+    #    define WIN32_LEAN_AND_MEAN
+#endif
 #    define NOMINMAX
 #    include <windows.h>
 
@@ -52,7 +54,7 @@
 #include "atomicdex/pages/qt.wallet.page.hpp"
 #include "atomicdex/services/ip/ip.checker.service.hpp"
 #include "atomicdex/services/mm2/mm2.service.hpp"
-#include "atomicdex/services/ohlc/ohlc.provider.hpp"
+//#include "atomicdex/services/ohlc/ohlc.provider.hpp"
 #include "atomicdex/services/price/coinpaprika/coinpaprika.provider.hpp"
 #include "atomicdex/services/price/global.provider.hpp"
 #include "atomicdex/services/price/oracle/band.provider.hpp"
@@ -232,7 +234,7 @@ namespace atomic_dex
             auto& mm2_s = system_manager_.create_system<mm2_service>(system_manager_);
 
             system_manager_.create_system<coinpaprika_provider>(mm2_s);
-            system_manager_.create_system<ohlc_provider>(mm2_s);
+            //system_manager_.create_system<ohlc_provider>(mm2_s);
 
             connect_signals();
             m_event_actions[events_action::need_a_full_refresh_of_mm2] = false;
@@ -347,7 +349,7 @@ namespace atomic_dex
         system_manager_.create_system<global_price_service>(system_manager_, settings_page_system.get_cfg());
         system_manager_.create_system<band_oracle_price_service>();
         system_manager_.create_system<coinpaprika_provider>(mm2_system);
-        system_manager_.create_system<ohlc_provider>(mm2_system);
+        //system_manager_.create_system<ohlc_provider>(mm2_system);
         system_manager_.create_system<update_service_checker>();
         system_manager_.create_system<trading_page>(
             system_manager_, m_event_actions.at(events_action::about_to_exit_app), portfolio_system.get_portfolio(), this);
@@ -515,7 +517,7 @@ namespace atomic_dex
         //! Mark systems
         system_manager_.mark_system<mm2_service>();
         system_manager_.mark_system<coinpaprika_provider>();
-        system_manager_.mark_system<ohlc_provider>();
+        //system_manager_.mark_system<ohlc_provider>();
 
         //! Disconnect signals
         system_manager_.get_system<trading_page>().disconnect_signals();
@@ -639,6 +641,7 @@ namespace atomic_dex
     {
         this->m_app = app;
         connect(m_app.get(), SIGNAL(aboutToQuit()), this, SLOT(exit_handler()));
+        connect(qGuiApp, &QGuiApplication::applicationStateChanged, this, &application::app_state_changed);
         auto& settings_system = system_manager_.get_system<settings_page>();
         settings_system.set_qml_engine(engine);
         settings_system.init_lang();
@@ -1016,6 +1019,25 @@ namespace atomic_dex
     {
         spdlog::trace("will quit app, prevent all threading event");
         m_event_actions[events_action::about_to_exit_app] = true;
+    }
+
+    void
+    application::app_state_changed()
+    {
+        switch(m_app->applicationState()) {
+        case Qt::ApplicationSuspended:
+            spdlog::info("Application suspended");
+            break;
+        case Qt::ApplicationHidden:
+            spdlog::info("Application hidden");
+            break;
+        case Qt::ApplicationInactive:
+            spdlog::info("Application inactive");
+            break;
+        case Qt::ApplicationActive:
+            spdlog::info("Application active");
+            break;
+        }
     }
 
 } // namespace atomic_dex
